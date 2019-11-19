@@ -1,2 +1,2 @@
 #val+train
-python3 voc_data_migrate.py ./COCO/Annotations ./COCO/val2014 ./COCO/train2014 ./COCO/JPEGImages
+python3 voc_data_migrate.py ./COCO/Annotations /media/data/COCO/val2014 /media/data/COCO/train2014 ./COCO/JPEGImages

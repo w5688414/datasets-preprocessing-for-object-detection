@@ -3,6 +3,7 @@ import os
 import random
 import shutil
 import sys
+from tqdm import tqdm 
 
 #xml路径的地址 train
 # XmlPath=r'./COCO/coco_xml'
@@ -27,7 +28,7 @@ list=range(num)
 print("xml file total number",num)
 
 count=0
-for xml in total_xml:
+for xml in tqdm(total_xml):
     filename=xml.split(".")[0]
     filename=filename+".jpg"
    # print(filename)

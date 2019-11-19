@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from xml.dom.minidom import Document
 import time
 import sys
+from tqdm import tqdm 
 
 def ConvertVOCXml(file_path="",file_name=""):
 
@@ -42,15 +43,16 @@ def ConvertVOCXml(file_path="",file_name=""):
                     imagewidth.appendChild(doc.createTextNode(size_child.text))
                 elif (size_child.tag == "height"):
                     # print(size_child.tag, size_child.text)
-                    height_value = int(size_child.text)
+                    # height_value = int(size_child.text)
                     #print("图片的高度", height_value)
                     imageheight.appendChild(doc.createTextNode(size_child.text))
                 elif (size_child.tag == "depth"):
                 #print(size_child.tag, size_child.text)
                     imagedepth.appendChild(doc.createTextNode(size_child.text))
-            sizeimage.appendChild(imagedepth)
+            
             sizeimage.appendChild(imagewidth)
             sizeimage.appendChild(imageheight)
+            sizeimage.appendChild(imagedepth)
             annotation.appendChild(sizeimage)
 
         elif (child.tag == "object"):  #解析object
@@ -113,6 +115,8 @@ def ConvertVOCXml(file_path="",file_name=""):
         name = doc.createElement('name')
 
         truncated=doc.createElement('truncated')
+        difficult=doc.createElement('difficult')
+        pose=doc.createElement('pose')
 
 
         name.appendChild(doc.createTextNode(singleObject['name']))
@@ -121,10 +125,22 @@ def ConvertVOCXml(file_path="",file_name=""):
             truncated.appendChild(doc.createTextNode(singleObject['truncated']))
         else:
             truncated.appendChild(doc.createTextNode("0"))
+
+        if(difficult in singleObject):
+            difficult.appendChild(doc.createTextNode(singleObject['difficult']))
+        else:
+            difficult.appendChild(doc.createTextNode("0"))
+
+        if(pose in singleObject):
+            pose.appendChild(doc.createTextNode(singleObject['pose']))
+        else:
+            pose.appendChild(doc.createTextNode("Unspecified"))
    
 
         object.appendChild(name)
+        object.appendChild(pose)
         object.appendChild(truncated)
+        object.appendChild(difficult)
         
         bndbox = doc.createElement("bndbox")
         xmin = doc.createElement("xmin")
@@ -177,7 +193,7 @@ def main():
     start = time.time()
 
     log=open("xml_statistical.txt","w") #分析日志，进行排错
-    for xml_base_path in xml_base_paths:
+    for xml_base_path in tqdm(xml_base_paths):
         xml_path=os.path.join(basePath,xml_base_path)
         #    print(xml_path)
         list_xml=os.listdir(xml_path)
@@ -192,7 +208,7 @@ def main():
             flag=ConvertVOCXml(file_path=saveBasePath,file_name=xml_file_path)
             if flag:
                 total_num+=1
-                if(total_num%100==0):
+                if(total_num%10000==0):
                     print(total_num)
             else:
                 log.write(xml_file_path+" "+str(total_num)+"\n")
